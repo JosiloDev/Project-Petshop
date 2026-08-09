@@ -75,7 +75,7 @@ public class PetShopRepositorio {
 	        if (nome.equals(cachorros.get(a).getNome())) {
 	            cachorros.remove(a);
 	            return true;
-	        } else {return false;}
+	        }
 	    }
 	    return false;
 	}
@@ -87,8 +87,7 @@ public class PetShopRepositorio {
 
 	/** Quantidade de animais cadastrados no repositório. */
 	public int quantidade() {
-		return 0;
+		return cachorros.size();
 	}
-	
 	
 }
