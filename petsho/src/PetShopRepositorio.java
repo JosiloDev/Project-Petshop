@@ -10,6 +10,7 @@ public class PetShopRepositorio {
 
 	/** Adiciona um animal à lista. */
 	public void adicionar(Cachorro a) {
+		
 		cachorros.add(a);
 	}
 
@@ -27,7 +28,43 @@ public class PetShopRepositorio {
 		 return null;
 		
 	}
+	public Cachorro atualizarDados(String nome, String idade, String raca,String nomeTutor, String tele) {
+		 for (Cachorro a : cachorros) {
+		        if (nome.equals(a.getNome())) {
+				if (!idade.isEmpty()) {
+                try {
+                    int novaIdade = Integer.parseInt(idade);
+                    a.setIdade(novaIdade);
+                } catch (NumberFormatException e) {
+                }
+            }
+            
+            if (!raca.isEmpty()) {
+                a.setRaca(raca);
+            }
+            
+            if (!nomeTutor.isEmpty() || !tele.isEmpty()) {
+   
+                if (a.getDono() == null) {
+                    a.setDono(new Cliente("", ""));
+                }
+                
 
+                if (!nomeTutor.isEmpty()) {
+                    a.getDono().setNome(nomeTutor);
+                }
+                
+
+                if (!tele.isEmpty()) {
+                    a.getDono().setTelefone(tele);
+                }
+            }
+		            return a;
+					
+		        }}
+		 return null;
+		
+	}
 	/**
 	 * Remove o animal com o nome informado.
 	 * 

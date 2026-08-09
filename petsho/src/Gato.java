@@ -3,7 +3,7 @@
 public class Gato extends Animal {
 	boolean arranhaMoveis;
 	public Gato (String nome, int idade,boolean faminto,boolean arranhaMoveis) {
-		super(nome, idade);
+		super(nome, idade, faminto);
 		this.arranhaMoveis = arranhaMoveis;
 	}
 	
@@ -38,6 +38,11 @@ public class Gato extends Animal {
 			}
 		else{
 			System.out.println("este gato não tem dono");
+		}
+		if(faminto == true) {
+			System.out.printf("O %s está com fome \n",getNome());
+		}
+		else {System.out.printf("O %s está de barriga cheia \n",getNome());
 		}
 	}
 

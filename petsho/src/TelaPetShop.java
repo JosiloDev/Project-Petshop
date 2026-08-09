@@ -1,5 +1,4 @@
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -16,15 +15,14 @@ public class TelaPetShop extends JFrame {
 	private final JTextField campTel = new JTextField(10);
 	private final JTextField campNomeTutor = new JTextField(10);
 
-
 	// ── Área de resultado ──────────────────────────────────
 	private final JTextArea areaResultado = new JTextArea(12, 50);
 
 	// ── Botões ─────────────────────────────────────────────
-	private final JButton btnCadastrar = new JButton("Cadastrar");
-	private final JButton btnBuscar = new JButton("Buscar");
-	private final JButton btnAtualizar = new JButton("Atualizar");
-	private final JButton btnRemover = new JButton("Remover");
+	private final JButton btnCadastrar = new JButton("Cadastrar (Enter)");
+	private final JButton btnBuscar = new JButton("Buscar (F2)");
+	private final JButton btnAtualizar = new JButton("Atualizar (F3)");
+	private final JButton btnRemover = new JButton("Remover (F4)");
 
 	// ── Construtor ─────────────────────────────────────────
 	public TelaPetShop() {
@@ -33,11 +31,16 @@ public class TelaPetShop extends JFrame {
 
 		// O JFrame usa BorderLayout por padrão
 		setLayout(new BorderLayout(8, 8));
-
+		this.getRootPane().setDefaultButton(btnCadastrar);
+		campNome.requestFocus();
 		add(criarPainelFormulario(), BorderLayout.NORTH);
 		add(criarAreaResultado(), BorderLayout.CENTER);
 		add(criarPainelBotoes(), BorderLayout.SOUTH);
-
+		campNome.addKeyListener(atalhosTeclado);
+		campIdade.addKeyListener(atalhosTeclado);
+		campRaca.addKeyListener(atalhosTeclado);
+		campTel.addKeyListener(atalhosTeclado);
+		campNomeTutor.addKeyListener(atalhosTeclado);
 		configurarListeners();
 
 		setSize(900, 600);
@@ -62,7 +65,7 @@ public class TelaPetShop extends JFrame {
 		painel.add(campTel);
 		painel.add(new JLabel("Nome Tutor:"));
 		painel.add(campNomeTutor);
-		
+
 		return painel;
 	}
 
@@ -94,39 +97,50 @@ public class TelaPetShop extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String nome = campNome.getText().trim();
 				String raca = campRaca.getText().trim();
-				int idade = Integer.parseInt(campIdade.getText());
+				int idade;
 				String nomed = campNomeTutor.getText().trim();
 				String telefone = campTel.getText().trim();
-				
 
 				if (nome.isEmpty()) {
 					exibirTexto("ERRO: O campo Nome é obrigatório.");
 					return;
 				}
 				if (raca.isEmpty()) {
-					raca = "Indefinida";}
+					raca = "Indefinida";
+				}
+				try {
+					String textoIdade = campIdade.getText().trim();
 
-				if (idade <= 0 ) {
-					exibirTexto("Idade invalida");
+					if (textoIdade.isEmpty()) {
+						exibirTexto("ERRO: O campo idade não pode ser vazio");
+						return;
+					}
+					idade = Integer.parseInt(campIdade.getText().trim());
+					if (idade <= 0) {
+						exibirTexto("Idade inválida");
+						return;
+					}
+				} catch (NumberFormatException g) {
+					exibirTexto("ERRO: O campo idade só utiliza números.");
 					return;
 				}
-				
 				if (nomed.isEmpty()) {
-					nomed = "Sem dono";}
-				
+					nomed = "Sem dono";
+				}
+
 				if (telefone.isEmpty()) {
-					telefone = "Sem telefone";}
-				
+					telefone = "Sem telefone";
+				}
 
 				Cachorro novo = new Cachorro(nome, idade, raca);
 				novo.setDono(new Cliente(nomed, telefone));
 
 				repositorio.adicionar(novo);
-				exibirTexto("Pet cadastrado com sucesso!\n\n" );
+				exibirTexto("Pet cadastrado com sucesso!\n\n");
 				limparCampos();
 			}
-		});	
-		
+		});
+
 		// ---- BUSCAR ----
 		btnBuscar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -135,43 +149,88 @@ public class TelaPetShop extends JFrame {
 					exibirTexto("ERRO: O campo Nome é obrigatório.");
 					return;
 				}
-				
+
 				Cachorro c = repositorio.buscarPorNome(nome);
 				if (c != null) {
-				    exibirTexto("Nome: " + c.getNome() + "\n" +
-				                "Raça: " + c.getRaca() + "\n" +
-				                "Idade: " + c.getIdade()+ "\n" +
-				                "Dono: " + c.getDono().getNome() + "\n" + 
-				                "Telefone do Dono: " + c.getDono().getTelefone() + "\n");
-		} else {
-				    exibirTexto("Cachorro não encontrado.");
+					exibirTexto("Nome: " + c.getNome() + "\n" +
+							"Raça: " + c.getRaca() + "\n" +
+							"Idade: " + c.getIdade() + "\n" +
+							"Dono: " + c.getDono().getNome() + "\n" +
+							"Telefone do Dono: " + c.getDono().getTelefone() + "\n");
+				} else {
+					exibirTexto("Cachorro não encontrado.");
 				}
 				limparCampos();
 			}
-		});	
+		});
 
 		// ---- REMOVER ----
-				btnRemover.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						String nome = campNome.getText().trim();
-						if (nome.isEmpty()) {
-							exibirTexto("ERRO: O campo Nome é obrigatório.");
-							return;
-						}
-						
-						boolean d = repositorio.remover(nome);
-						if (d == true) {
-						    exibirTexto("Nome: " + nome + " foi removido");
-						              
-						} else {
-						    exibirTexto("Cachorro não encontrado.");
-						}
-						limparCampos();
-					}
-				});	
-		
-		
+		btnRemover.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String nome = campNome.getText().trim();
+				if (nome.isEmpty()) {
+					exibirTexto("ERRO: O campo Nome é obrigatório.");
+					return;
+				}
+
+				boolean d = repositorio.remover(nome);
+				if (d == true) {
+					exibirTexto("Nome: " + nome + " foi removido");
+
+				} else {
+					exibirTexto("Cachorro não encontrado.");
+				}
+				limparCampos();
+			}
+		});
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String nome = campNome.getText().trim();
+				String raca = campRaca.getText().trim();
+				String nomeTutor = campNomeTutor.getText().trim();
+				String tele = campTel.getText().trim();
+				if (nome.isEmpty()) {
+					exibirTexto("ERRO: O campo Nome é obrigatório.");
+					return;
+				}
+				String idade = campIdade.getText().trim();
+				Cachorro c = repositorio.atualizarDados(nome, idade, raca, nomeTutor, tele);
+				if (c != null) {
+					exibirTexto("Dados atualizados com sucesso!");
+				} else {
+					exibirTexto("Cachorro não encontrado.");
+				}
+				limparCampos();
+			}
+		});
+
 	}
+
+	java.awt.event.KeyListener atalhosTeclado = new java.awt.event.KeyAdapter() {
+		@Override
+		public void keyPressed(java.awt.event.KeyEvent e) {
+
+			if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F2) {
+				btnBuscar.doClick();
+			}
+
+			else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F3) {
+				btnAtualizar.doClick();
+			}
+
+			else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F4) {
+				btnRemover.doClick();
+			} else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_RIGHT) {
+				java.awt.Component focado = (java.awt.Component) e.getSource();
+				focado.transferFocus();
+			}
+
+			else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_LEFT) {
+				java.awt.Component focado = (java.awt.Component) e.getSource();
+				focado.transferFocusBackward();
+			}
+		}
+	};
 
 	// ── Métodos auxiliares ─────────────────────────────────
 
